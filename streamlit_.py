@@ -4,41 +4,39 @@ import pickle
 import pandas as pd
 import plotly.express as px
 
-# Set page config
-st.set_page_config(page_title="Customer Segmentation", layout="centered")
+# Cấu hình trang
+st.set_page_config(page_title="Phân Khúc Khách Hàng", layout="centered")
 df_total = pd.read_csv("dataframe_total.csv")
 product_df = pd.read_csv("df_product_sales.csv")
 category_df = pd.read_csv("df_category_sales.csv")
 
-# Sidebar menu
+# Menu bên trái
 menu = st.sidebar.selectbox(
     "Menu",
-    ["Home", "Data Insight", "Segmentation"]
+    ["Trang Chủ", "Khám Phá Dữ Liệu", "Phân Khúc"]
 )
 
-# Trang Home
-if menu == "Home":
-    st.title("Customer Segmentation Project")
-    st.write("Welcome to the Customer Segmentation Dashboard!")
+# Trang Chủ
+if menu == "Trang Chủ":
+    st.title("Dự Án Phân Khúc Khách Hàng")
+    st.write("Chào mừng đến với Bảng Điều Khiển Phân Khúc Khách Hàng!")
     st.image("Fruit.jpg")
-    st.header("Business Understanding:")
-    st.write("Store X mainly sells essential products to customers such as vegetables, fruits, meat, fish, eggs, milk, soft drinks, etc. The store's customers are retail customers.")
-    st.write("The Customer Segmentation project uses the RFM (Recency, Frequency, Monetary) analysis method to divide customers into groups to serve different marketing strategies.")
+    st.header("Hiểu Biết Về Bài Toán Kinh Doanh:")
+    st.write("Cửa hàng X chủ yếu bán các mặt hàng thiết yếu như rau củ, trái cây, thịt, cá, trứng, sữa, nước giải khát,... cho khách hàng bán lẻ.")
+    st.write("Dự án Phân Khúc Khách Hàng sử dụng phương pháp phân tích RFM (Recency, Frequency, Monetary) để chia khách hàng thành các nhóm khác nhau phục vụ cho các chiến lược marketing.")
+    st.write("  - Recency: Số ngày kể từ lần mua gần nhất")
+    st.write("  - Frequency: Số lần mua hàng")
+    st.write("  - Monetary: Tổng giá trị mua hàng")
+    st.write("Việc kết hợp phương pháp RFM với thuật toán KMeans giúp hệ thống phân nhóm khách hàng hoạt động hiệu quả hơn trong việc cá nhân hóa chăm sóc và giữ chân khách hàng, đồng thời giúp doanh nghiệp gia tăng doanh thu.")
 
-    st.write("  Recency: Number of days since the last purchase")
-    st.write("  Frequency: Number of purchases")
-    st.write("  Monetary: Total order value")
-    st.write("Combining the RFM method and the KMeans algorithm, the customer segmentation system helps increase efficiency in personalizing customer care and retention, while helping businesses increase revenue.")
-
-
-# Trang Data Insight
-elif menu == "Data Insight":
-    st.title("Data Insight")
+# Trang Khám Phá Dữ Liệu
+elif menu == "Khám Phá Dữ Liệu":
+    st.title("Khám Phá Dữ Liệu")
     
-    st.subheader("Xem trước dữ liệu RFM")
+    st.subheader("Tìm Hiểu Dữ Liệu")
     
     num_rows = st.number_input(
-        "Input number of row", 
+        "Nhập số dòng cần xem", 
         min_value=2, 
         max_value=100, 
         value=5,  # Giá trị mặc định
@@ -46,31 +44,31 @@ elif menu == "Data Insight":
     )
     
     st.dataframe(df_total.head(num_rows))
-    st.write("Data recored from 1/1/2024 to 30/12/2015")
-    st.subheader("""There are total:
+    st.write("Dữ liệu được ghi nhận từ ngày 1/1/2024 đến 30/12/2015")
+    st.subheader("""Tổng cộng có:
                  
-        ->11 Product Categories
+        ->11 danh mục sản phẩm
                  
-        ->167 Products
+        ->167 sản phẩm
                  
-        ->3898 Customers
+        ->3898 khách hàng
                  
-        ->77380 Products Sold""")
-    st.subheader("""With:
+        ->77380 sản phẩm đã bán""")
+    st.subheader("""Trong đó:
 
-        ->Whole Milk is the best selling product
+        ->Sản phẩm bán chạy nhất là Whole Milk
                  
-        ->Fresh Food is the best selling category
+        ->Danh mục bán chạy nhất là Fresh Food
                  
-        ->Total Income: 332159.63$
+        ->Tổng doanh thu: 332159.63$
                  
-        ->May is the month with most sales in 2014
+        ->Tháng có doanh số cao nhất năm 2014 là tháng 5
                  
-        ->August is the month with most sales in 2015 """)
-    st.subheader("📦 Top Seller Products")
+        ->Tháng có doanh số cao nhất năm 2015 là tháng 8""")
+    st.subheader("📦 Top sản phẩm bán chạy nhất")
 
     num_products = st.number_input(
-        "Choose number of products to see", 
+        "Chọn số lượng sản phẩm muốn xem", 
         min_value=2, 
         max_value=len(product_df), 
         value=5
@@ -82,15 +80,15 @@ elif menu == "Data Insight":
                         x="productName", 
                         y="counts",
                         color="counts",
-                        title=f"Top {num_products} best seller products",
+                        title=f"Top {num_products} sản phẩm bán chạy nhất",
                         labels={"product_name": "Sản phẩm", "counts": "Số lượng bán"})
 
     st.plotly_chart(fig_product, use_container_width=True)
 
-    st.subheader("🛍️ Top Seller Category")
+    st.subheader("🛍️ Top danh mục bán chạy")
 
     num_categories = st.number_input(
-        "Choose number of catehory to see", 
+        "Chọn số lượng danh mục muốn xem", 
         min_value=2, 
         max_value=len(category_df), 
         value=5
@@ -102,7 +100,7 @@ elif menu == "Data Insight":
                         x="Category", 
                         y="count_cat",
                         color="count_cat",
-                        title=f"Top {num_categories} danh mục sản phẩm bán chạy nhất",
+                        title=f"Top {num_categories} danh mục bán chạy nhất",
                         labels={"Category": "Danh mục", "count_cat": "Số lượng bán"})
 
     st.plotly_chart(fig_category, use_container_width=True)
@@ -111,11 +109,11 @@ elif menu == "Data Insight":
     st.image("output.png")
     st.image("newplot.png")
 
-# Trang Segmentation
-elif menu == "Segmentation":
-    st.title("🔍 Customer Segmentation")
+# Trang Phân Khúc
+elif menu == "Phân Khúc":
+    st.title("🔍 Phân Khúc Khách Hàng")
 
-    # Tải mô hình và scaler
+    # Tải model và scaler
     @st.cache_resource
     def load_model_scaler():
         model = pickle.load(open("kmeans_model.pkl", "rb"))
@@ -127,7 +125,7 @@ elif menu == "Segmentation":
     # Tải dữ liệu RFM
     rfm_df = pd.read_csv("rfm_output.csv")
 
-    # Lựa chọn kiểu nhập liệu
+    # Chọn phương thức nhập liệu
     input_mode = st.radio("Chọn phương thức dự đoán:", ["🔢 Nhập mã khách hàng", "✍️ Nhập thủ công RFM"])
 
     if input_mode == "🔢 Nhập mã khách hàng":
@@ -139,7 +137,7 @@ elif menu == "Segmentation":
                 rfm_scaled = scaler.transform(rfm_values)
                 cluster = model.predict(rfm_scaled)[0]
 
-                st.success(f"📊 Khách hàng **{member_id}** thuộc **Cluster {cluster}**")
+                st.success(f"📊 Khách hàng **{member_id}** thuộc **Cụm {cluster}**")
 
                 if cluster == 0:
                     st.info("🟡 Nhóm khách hàng trung thành hoặc chi tiêu nhiều.")
@@ -161,7 +159,7 @@ elif menu == "Segmentation":
             rfm_scaled = scaler.transform(rfm_input)
             cluster = model.predict(rfm_scaled)[0]
 
-            st.success(f"📊 Khách hàng thuộc **Cluster {cluster}**")
+            st.success(f"📊 Khách hàng thuộc **Cụm {cluster}**")
 
             if cluster == 0:
                 st.info("🟡 Nhóm khách hàng trung thành hoặc chi tiêu nhiều.")
@@ -169,4 +167,3 @@ elif menu == "Segmentation":
                 st.info("🔵 Nhóm khách hàng bình thường.")
             elif cluster == 2:
                 st.info("🔴 Nhóm khách hàng ít hoạt động hoặc mới.")
-
