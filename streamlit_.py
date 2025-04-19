@@ -10,6 +10,20 @@ df_total = pd.read_csv("dataframe_total.csv")
 product_df = pd.read_csv("df_product_sales.csv")
 category_df = pd.read_csv("df_category_sales.csv")
 
+
+# Menu bên trái
+st.sidebar.title("🎓 Thông tin nhóm")
+
+st.sidebar.markdown("""
+**👩‍🏫 Giáo viên hướng dẫn:**  
+*Khuat Thuy Phuong*
+
+**👨‍💻 Thành viên nhóm:**  
+- 🧠 Huỳnh Thiện Tấn: Làm GUI, huấn luyện model  
+- 📊 Trần Anh Tuấn: EDA dữ liệu, powerpoint
+""")
+
+
 # Menu bên trái
 menu = st.sidebar.selectbox(
     "Menu",
@@ -126,7 +140,8 @@ elif menu == "Phân Khúc":
     rfm_df = pd.read_csv("rfm_output.csv")
 
     # Chọn phương thức nhập liệu
-    input_mode = st.radio("Chọn phương thức dự đoán:", ["🔢 Nhập mã khách hàng", "✍️ Nhập thủ công RFM"])
+    input_mode = st.radio("Chọn phương thức dự đoán:", ["🔢 Nhập mã khách hàng", "✍️ Nhập thủ công RFM", "📂 Tải lên file dữ liệu"])
+
 
     if input_mode == "🔢 Nhập mã khách hàng":
         member_id = st.number_input("Nhập mã khách hàng (4 chữ số):", min_value=1000, max_value=9999, step=1)
@@ -140,13 +155,49 @@ elif menu == "Phân Khúc":
                 st.success(f"📊 Khách hàng **{member_id}** thuộc **Cụm {cluster}**")
 
                 if cluster == 0:
-                    st.info("🟡 Nhóm khách hàng trung thành hoặc chi tiêu nhiều.")
+                    st.info("🟡 Khách hàng trung thành, có giá trị cao: Mua hàng khá thường xuyên, chi tiêu cao và mua gần đây. Đây là nhóm nên ưu tiên giữ chân và chăm sóc kỹ.")
                 elif cluster == 1:
-                    st.info("🔵 Nhóm khách hàng bình thường.")
+                    st.info("🔵 Khách hàng thưa thớt, ít giá trị: Mua hàng không thường xuyên, chi tiêu thấp, và lần gần nhất mua cách đây khá lâu (Recency: 309.23). Đây là nhóm cần chiến dịch kích thích quay lại.")
                 elif cluster == 2:
-                    st.info("🔴 Nhóm khách hàng ít hoạt động hoặc mới.")
+                    st.info("🟢 Khách hàng VIP: Rất thường xuyên mua hàng, chi tiêu cao nhất và mua gần đây. Đây là nhóm giữ chân mạnh – cá nhân hóa cao.")
+                elif cluster == 3:
+                    st.info("🔴 Khách hàng mới hoặc ngủ quên: Mua ít, chi tiêu thấp, nhưng vẫn còn khá gần đây. Đây là nhóm tiềm năng để thúc đẩy mua lại.")
+                elif cluster == 4:
+                    st.info("⚫ Khách hàng không còn tương tác: Rất lâu không mua, mua ít, chi tiêu rất thấp. Đây là nhóm gần như đã rời bỏ, cân nhắc loại bỏ hoặc remarketing nhẹ.")
             else:
                 st.warning("❗ Mã khách hàng không tồn tại trong dữ liệu.")
+
+    elif input_mode == "📂 Tải lên file dữ liệu":
+        st.subheader("📥 Tải lên file CSV chứa thông tin RFM")
+        uploaded_file = st.file_uploader("Chọn file CSV", type=["csv"])
+
+        if uploaded_file is not None:
+            try:
+                df_upload = pd.read_csv(uploaded_file)
+
+                required_cols = ['Frequency', 'Recency', 'Monetary']
+                if all(col in df_upload.columns for col in required_cols):
+                    # Scale dữ liệu và dự đoán
+                    scaled_input = scaler.transform(df_upload[required_cols])
+                    clusters = model.predict(scaled_input)
+                    df_upload['Cluster'] = clusters
+
+                    st.success("✅ Dự đoán thành công!")
+                    st.dataframe(df_upload)
+
+                    # Tùy chọn tải xuống kết quả
+                    csv = df_upload.to_csv(index=False).encode("utf-8")
+                    st.download_button(
+                        label="⬇️ Tải kết quả về",
+                        data=csv,
+                        file_name="du_doan_phan_khuc.csv",
+                        mime="text/csv"
+                    )
+                else:
+                    st.warning("❗ File phải chứa đầy đủ 3 cột: Frequency, Recency, Monetary.")
+            except Exception as e:
+                st.error(f"⚠️ Lỗi xử lý file: {e}")
+
 
     else:
         st.subheader("✍️ Nhập thông tin RFM của khách hàng:")
